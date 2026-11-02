@@ -109,11 +109,10 @@ def match_nba_dropdown_value(val):
 # --- Database Drivers & Functions ---
 
 @st.cache_resource
-def get_driver(uri, username, password):
-
+def get_driver():
     driver = GraphDatabase.driver(
-        uri,
-        auth=(username, password),
+        NEO4J_URI,
+        auth=(NEO4J_USER, NEO4J_PASSWORD),
         connection_timeout=30
     )
 
@@ -127,17 +126,16 @@ def get_driver(uri, username, password):
 
 
 try:
-    driver = get_driver(
-        NEO4J_URI,
-        NEO4J_USER,
-        NEO4J_PASSWORD
-    )
-
+    driver = get_driver()
     st.success("Connected to Neo4j AuraDB!")
 
 except Exception as e:
     st.error("Unable to connect to Neo4j AuraDB.")
-    st.exception(e)
+
+    st.write("Exception type:", type(e).__name__)
+    st.write("Neo4j error code:", getattr(e, "code", "Not available"))
+    st.write("Error message:", str(e))
+
     st.stop()
 
 def get_all_players(tx):
