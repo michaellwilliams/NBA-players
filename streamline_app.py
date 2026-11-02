@@ -109,22 +109,30 @@ def match_nba_dropdown_value(val):
 # --- Database Drivers & Functions ---
 
 @st.cache_resource
-def get_driver():
+def get_driver(uri, username, password):
+
     driver = GraphDatabase.driver(
-        NEO4J_URI,
-        auth=(NEO4J_USER, NEO4J_PASSWORD),
+        uri,
+        auth=(username, password),
         connection_timeout=30
     )
 
     try:
         driver.verify_connectivity()
         return driver
+
     except Exception:
         driver.close()
         raise
 
 
 try:
+    driver = get_driver(
+        NEO4J_URI,
+        NEO4J_USER,
+        NEO4J_PASSWORD
+    )
+
     st.success("Connected to Neo4j AuraDB!")
 
 except Exception as e:
