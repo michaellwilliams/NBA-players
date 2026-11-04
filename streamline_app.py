@@ -1501,7 +1501,9 @@ else:
 
             try:
                 # 1. Capture the raw HTML output string from agraph instead of letting it render directly
-                raw_graph_html = agraph(nodes=nodes, edges=edges, config=config)
+                # Capture the output so that line 1516 has the variable it needs to check
+                selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
+
                 
                 # 2. If it returns text, swap out the broken 'rem' units for safe pixel numbers
                 if isinstance(raw_graph_html, str):
