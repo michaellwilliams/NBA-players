@@ -201,45 +201,46 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-    # --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe) ---
-    st.title("NBA Player Connections Graph")
+  # --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe) ---
+st.title("NBA Player Connections Graph")
 
-    net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
-    df_players = load_players()
+net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
+df_players = load_players()
 
-    if not df_players.empty:
-        for _, row in df_players.iterrows():
-            player_id = str(row.get("id"))
-            player_name = str(row.get("name", "Unknown Player"))
-            player_team = str(row.get("team", "Free Agent"))
-            
-            net.add_node(
-                player_id, 
-                label=player_name, 
-                title=f"Team: {player_team}", 
-                color="#2b7ce9", 
-                shape="dot",
-                size=25 
-            )
-            
-        if "team" in df_players.columns:
-            grouped = df_players.groupby("team")
-            for team, group in grouped:
-                if len(group) > 1:
-                    node_ids = group["id"].astype(str).tolist()
-                    for i in range(len(node_ids)):
-                        for j in range(i + 1, len(node_ids)):
-                            net.add_edge(node_ids[i], node_ids[j], title=f"Teammates ({team})", color="#cccccc")
+if not df_players.empty:
+    for _, row in df_players.iterrows():
+        player_id = str(row.get("id"))
+        player_name = str(row.get("name", "Unknown Player"))
+        player_team = str(row.get("team", "Free Agent"))
+        
+        net.add_node(
+            player_id, 
+            label=player_name, 
+            title=f"Team: {player_team}", 
+            color="#2b7ce9", 
+            shape="dot",
+            size=25 
+        )
+        
+    if "team" in df_players.columns:
+        grouped = df_players.groupby("team")
+        for team, group in grouped:
+            if len(group) > 1:
+                node_ids = group["id"].astype(str).tolist()
+                for i in range(len(node_ids)):
+                    for j in range(i + 1, len(node_ids)):
+                        net.add_edge(node_ids[i], node_ids[j], title=f"Teammates ({team})", color="#cccccc")
 
-        try:
-            net.save_graph("pyvis_graph.html")
-            with open("pyvis_graph.html", 'r', encoding='utf-8') as f:
-                html_content = f.read()
-            components.html(html_content, height=550, scrolling=True)
-        except Exception as graph_err:
-            st.error(f"Could not render network: {str(graph_err)}")
-    else:
-        st.info("No player profiles found inside Neo4j Aura.")
+    try:
+        net.save_graph("pyvis_graph.html")
+        with open("pyvis_graph.html", 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        components.html(html_content, height=550, scrolling=True)
+    except Exception as graph_err:
+        st.error(f"Could not render network: {str(graph_err)}")
+else:
+    st.info("No player profiles found inside Neo4j Aura.")
+
 
 
 def get_player_network_subgraph(tx, player_id):
