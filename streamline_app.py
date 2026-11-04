@@ -201,7 +201,7 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-  # --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe) ---
+  # --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe & Serverless Friendly) ---
 st.title("NBA Player Connections Graph")
 
 net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
@@ -231,20 +231,20 @@ if not df_players.empty:
                     for j in range(i + 1, len(node_ids)):
                         net.add_edge(node_ids[i], node_ids[j], title=f"Teammates ({team})", color="#cccccc")
 
+    # Safe dynamic HTML compiler that bypasses cloud storage restrictions
     try:
-        net.save_graph("pyvis_graph.html")
-        with open("pyvis_graph.html", 'r', encoding='utf-8') as f:
-            html_content = f.read()
+        html_content = net.generate_html()
         components.html(html_content, height=550, scrolling=True)
     except Exception as graph_err:
         st.error(f"Could not render network: {str(graph_err)}")
 else:
     st.info("No player profiles found inside Neo4j Aura.")
+
 # --- SPREADSHEET DATAFRAME VIEW ---
 st.subheader("Raw Player Database Records")
 
 if not df_players.empty:
-    # Safely displays the structured Neo4j dataframe columns inside a clean interactive table
+    # This will now safely fire because the HTML engine above won't lock up execution
     st.dataframe(df_players)
 else:
     st.warning("No tabular player records found to display.")
