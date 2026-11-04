@@ -1,8 +1,7 @@
-
-import streamlit as st
-import pandas as pd
 import streamlit.components.v1 as components
 from pyvis.network import Network
+import streamlit as st
+import pandas as pd
 from neo4j import GraphDatabase
 import pycountry
 import openai
@@ -201,40 +200,22 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-# --- NATIVE GRAPH DISPLAY ENGINE (iOS & Safari Friendly) ---
-st.title("NBA Player Connections Graph")
-
-# Fetch your data using your exact original loader
-df_players = load_players()
-
-if not df_players.empty:
-    # Build a clean coordinate matrix to plot the player nodes safely on mobile
-    if "team" in df_players.columns:
-        # Create visual spacing coordinates based on teams to reveal clusters
-        df_players["x_coord"] = df_players["team"].astype("category").cat.codes
-        df_players["y_coord"] = df_players.index
+    # Clean up column key casing variations so everything maps to exact matches
+    df_raw.columns = [c.lower() if c not in ["id", "Select"] else c for c in df_raw.columns]
+    
+    # Translate State abbreviations to full names
+    if "state" in df_raw.columns:
+        df_raw["state"] = df_raw["state"].map(lambda x: state_abbrev_map.get(str(x).upper(), x) if pd.notna(x) else x)
         
-        # Native, responsive scatter graph that acts as your visual relationship map
-        st.scatter_chart(
-            df_players,
-            x="x_coord",
-            y="y_coord",
-            color="team",
-            size="age",
-            use_container_width=True
-        )
-else:
-    st.info("No player profiles found inside Neo4j Aura.")
+    # FIX: Convert incoming abbreviated country codes (US, USA) to full names on load
+    if "country" in df_raw.columns:
+        df_raw["country"] = df_raw["country"].map(clean_country_name)
 
-# --- SPREADSHEET DATAFRAME VIEW ---
-st.subheader("Raw Player Database Records")
-
-if not df_players.empty:
-    # Your original grid matrix, optimized to scale properly on cell phones
-    st.dataframe(df_players, use_container_width=True)
-else:
-    st.warning("No tabular player records found to display.")
-
+    if "team" in df_raw.columns:
+        # Standardize spreadsheet display cells to use our descriptive format
+        df_raw["team"] = df_raw["team"].map(match_nba_dropdown_value)
+        
+    return df_raw
 
 
 def get_player_network_subgraph(tx, player_id):
