@@ -1529,3 +1529,14 @@ else:
                 session.execute_write(update_user_node, player_id, clean_props)
         st.success("Successfully pushed inline updates to Neo4j!")
         st.rerun()
+
+        # --- SPREADSHEET VIEW (iOS/Safari Safe Fallback) ---
+        st.subheader("Raw Player Database Records")
+
+        if not df_players.empty:
+            # Using st.table instead of st.dataframe bypasses the JavaScript module failure 
+            # and renders your data as a clean, reliable HTML grid on mobile devices.
+            st.table(df_players)
+        else:
+            st.warning("No tabular player records found to display.")
+
