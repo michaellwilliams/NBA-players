@@ -1459,6 +1459,8 @@ else:
 
             # 2. Capture whichever node is actively selected or clicked on
             # selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
+
+            selected_node_raw = None
             
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
