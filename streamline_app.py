@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from neo4j import GraphDatabase
 from streamlit_agraph import agraph, Node, Edge, Config
-import streamlit.components.v1 as components
 import pycountry
 import openai
 import os
@@ -1456,64 +1455,10 @@ else:
                             edges.append(Edge(source=college_node_name, target=alum_name, color="#B2F2BB", width=1, label="ATTENDED", font={'color': 'black', 'size': 9, 'align': 'bottom'}))
 
             # Initialize the canvas viewport config ahead of the button tracking run
-            config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, interaction={"hover": True, "navigationButtons": True}, collapsible=False)
-
-            # --- INTERNAL IFRAME SAFARI SVG PATCH ---
-            # This injects a background script that waits for the agraph canvas to load,
-            # digs directly into its isolated sandbox, and strips the broken rem units 
-            # out of the SVG tags before Safari can flag them.
-            st.components.v1.html(
-                """
-                <script>
-                const patchSvgDimensions = () => {
-                    // Look inside all stream-lit component containers on the screen
-                    const frames = window.parent.document.querySelectorAll("iframe");
-                    frames.forEach(frame => {
-                        try {
-                            // Access the inner document of the agraph frame safely
-                            const innerDoc = frame.contentDocument || frame.contentWindow.document;
-                            const badSvgs = innerDoc.querySelectorAll('svg[width="1.25rem"], svg[height="1.25rem"]');
-                            
-                            badSvgs.forEach(svg => {
-                                // Instantly rewrite the attributes to pure, safe numeric formats
-                                svg.setAttribute("width", "20");
-                                svg.setAttribute("height", "20");
-                                svg.style.width = "20px";
-                                svg.style.height = "20px";
-                            });
-                        } catch (e) {
-                            // Multi-origin blocks are bypassed gracefully here
-                        }
-                    });
-                };
-
-                // Run the patch continuously to catch nodes as they stream in from Neo4j
-                setInterval(patchSvgDimensions, 500);
-                </script>
-                """,
-                height=0,
-                width=0
-            )
-
+            config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, nodeHighlightBehavior=True, highlightColor="#F77737", collapsible=False)
 
             # 2. Capture whichever node is actively selected or clicked on
-            # selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
-
-            try:
-                # 1. Capture the raw HTML output string from agraph instead of letting it render directly
-                # Capture the output so that line 1516 has the variable it needs to check
-                selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
-
-                
-                # 2. If it returns text, swap out the broken 'rem' units for safe pixel numbers
-                if isinstance(raw_graph_html, str):
-                    fixed_html = raw_graph_html.replace('height="1.25rem"', 'height="20"').replace('width="1.25rem"', 'width="20"')
-                    
-                    # 3. Force Safari to render the patched version safely inside an isolated frame
-                    components.html(fixed_html, height=int(config.height), width=int(config.width))
-            except Exception as e:
-                st.error(f"Error patching the graph layout: {str(e)}")
-
+            selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
             
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
