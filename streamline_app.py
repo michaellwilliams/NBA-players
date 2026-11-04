@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from neo4j import GraphDatabase
 from streamlit_agraph import agraph, Node, Edge, Config
+import streamlit.components.v1 as components
 import pycountry
 import openai
 import os
@@ -1458,7 +1459,21 @@ else:
             config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, interaction={"hover": True, "navigationButtons": True}, collapsible=False)
 
             # 2. Capture whichever node is actively selected or clicked on
-            selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
+            # selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
+
+            try:
+                # 1. Capture the raw HTML output string from agraph instead of letting it render directly
+                raw_graph_html = agraph(nodes=nodes, edges=edges, config=config)
+                
+                # 2. If it returns text, swap out the broken 'rem' units for safe pixel numbers
+                if isinstance(raw_graph_html, str):
+                    fixed_html = raw_graph_html.replace('height="1.25rem"', 'height="20"').replace('width="1.25rem"', 'width="20"')
+                    
+                    # 3. Force Safari to render the patched version safely inside an isolated frame
+                    components.html(fixed_html, height=int(config.height), width=int(config.width))
+            except Exception as e:
+                st.error(f"Error patching the graph layout: {str(e)}")
+
             
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
