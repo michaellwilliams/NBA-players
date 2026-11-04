@@ -201,13 +201,21 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-  # --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe & Serverless Friendly) ---
+# --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe & Serverless Friendly) ---
 st.title("NBA Player Connections Graph")
 
-net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
-df_players = load_players()
+# 1. Safely run the database loader to protect against connection hangs
+try:
+    df_players = load_players()
+except Exception as db_err:
+    st.error(f"⚠️ Database Connection Error: Could not fetch data from Neo4j Aura.")
+    st.info("Please verify your internet connection or check your database secrets credentials.")
+    df_players = pd.DataFrame()  # Force an empty dataframe so the layout doesn't crash
 
+# 2. Render the Pyvis Network Graph if data exists
 if not df_players.empty:
+    net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
+    
     for _, row in df_players.iterrows():
         player_id = str(row.get("id"))
         player_name = str(row.get("name", "Unknown Player"))
@@ -236,18 +244,19 @@ if not df_players.empty:
         html_content = net.generate_html()
         components.html(html_content, height=550, scrolling=True)
     except Exception as graph_err:
-        st.error(f"Could not render network: {str(graph_err)}")
+        st.error(f"Could not render network structure: {str(graph_err)}")
 else:
-    st.info("No player profiles found inside Neo4j Aura.")
+    st.info("No network relationships available to display right now.")
 
 # --- SPREADSHEET DATAFRAME VIEW ---
+st.write("---") # Visual separator line
 st.subheader("Raw Player Database Records")
 
 if not df_players.empty:
-    # This will now safely fire because the HTML engine above won't lock up execution
     st.dataframe(df_players)
 else:
     st.warning("No tabular player records found to display.")
+
 
 def get_player_network_subgraph(tx, player_id):
     # Surgical query: Finds the player node, matches their team and college links, and pulls their team colleagues
