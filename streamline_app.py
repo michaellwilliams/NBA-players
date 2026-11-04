@@ -201,42 +201,40 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-# --- NATIVE GRAPH DISPLAY ENGINE (100% iOS, Safari, & Server Safe) ---
+# --- NATIVE GRAPH DISPLAY ENGINE (iOS & Safari Friendly) ---
 st.title("NBA Player Connections Graph")
 
-try:
-    df_players = load_players()
-except Exception as db_err:
-    st.error(f"⚠️ Database Connection Error: Could not fetch data from Neo4j Aura.")
-    df_players = pd.DataFrame()
+# Fetch your data using your exact original loader
+df_players = load_players()
 
 if not df_players.empty:
-    # Safely extract nodes for a clean summary breakdown
-    st.success(f"Successfully loaded {len(df_players)} player connections from Neo4j Aura.")
-    
-    # Check if team relationships exist and map them safely 
+    # Build a clean coordinate matrix to plot the player nodes safely on mobile
     if "team" in df_players.columns:
-        st.subheader("Team Roster Groupings")
+        # Create visual spacing coordinates based on teams to reveal clusters
+        df_players["x_coord"] = df_players["team"].astype("category").cat.codes
+        df_players["y_coord"] = df_players.index
         
-        # Group players by their team attribute dynamically
-        teams = df_players["team"].dropna().unique()
-        selected_team = st.selectbox("Select an NBA Team to filter connections:", sorted(teams))
-        
-        # Display the connected teammates matching the phone user's selection
-        roster = df_players[df_players["team"] == selected_team][["name", "college", "country"]]
-        st.dataframe(roster, use_container_width=True)
+        # Native, responsive scatter graph that acts as your visual relationship map
+        st.scatter_chart(
+            df_players,
+            x="x_coord",
+            y="y_coord",
+            color="team",
+            size="age",
+            use_container_width=True
+        )
 else:
-    st.info("No player network profiles found inside Neo4j Aura.")
+    st.info("No player profiles found inside Neo4j Aura.")
 
 # --- SPREADSHEET DATAFRAME VIEW ---
-st.write("---")
 st.subheader("Raw Player Database Records")
 
 if not df_players.empty:
-    # Native Streamlit data table that handles multi-column layouts beautifully on iOS screens
+    # Your original grid matrix, optimized to scale properly on cell phones
     st.dataframe(df_players, use_container_width=True)
 else:
     st.warning("No tabular player records found to display.")
+
 
 
 def get_player_network_subgraph(tx, player_id):
