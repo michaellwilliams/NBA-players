@@ -201,59 +201,40 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-# --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe & Serverless Friendly) ---
+# --- NATIVE GRAPH DISPLAY ENGINE (100% iOS, Safari, & Server Safe) ---
 st.title("NBA Player Connections Graph")
 
-# 1. Safely run the database loader to protect against connection hangs
 try:
     df_players = load_players()
 except Exception as db_err:
     st.error(f"⚠️ Database Connection Error: Could not fetch data from Neo4j Aura.")
-    st.info("Please verify your internet connection or check your database secrets credentials.")
-    df_players = pd.DataFrame()  # Force an empty dataframe so the layout doesn't crash
+    df_players = pd.DataFrame()
 
-# 2. Render the Pyvis Network Graph if data exists
 if not df_players.empty:
-    net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
+    # Safely extract nodes for a clean summary breakdown
+    st.success(f"Successfully loaded {len(df_players)} player connections from Neo4j Aura.")
     
-    for _, row in df_players.iterrows():
-        player_id = str(row.get("id"))
-        player_name = str(row.get("name", "Unknown Player"))
-        player_team = str(row.get("team", "Free Agent"))
-        
-        net.add_node(
-            player_id, 
-            label=player_name, 
-            title=f"Team: {player_team}", 
-            color="#2b7ce9", 
-            shape="dot",
-            size=25 
-        )
-        
+    # Check if team relationships exist and map them safely 
     if "team" in df_players.columns:
-        grouped = df_players.groupby("team")
-        for team, group in grouped:
-            if len(group) > 1:
-                node_ids = group["id"].astype(str).tolist()
-                for i in range(len(node_ids)):
-                    for j in range(i + 1, len(node_ids)):
-                        net.add_edge(node_ids[i], node_ids[j], title=f"Teammates ({team})", color="#cccccc")
-
-    # Safe dynamic HTML compiler that bypasses cloud storage restrictions
-    try:
-        html_content = net.generate_html()
-        components.html(html_content, height=550, scrolling=True)
-    except Exception as graph_err:
-        st.error(f"Could not render network structure: {str(graph_err)}")
+        st.subheader("Team Roster Groupings")
+        
+        # Group players by their team attribute dynamically
+        teams = df_players["team"].dropna().unique()
+        selected_team = st.selectbox("Select an NBA Team to filter connections:", sorted(teams))
+        
+        # Display the connected teammates matching the phone user's selection
+        roster = df_players[df_players["team"] == selected_team][["name", "college", "country"]]
+        st.dataframe(roster, use_container_width=True)
 else:
-    st.info("No network relationships available to display right now.")
+    st.info("No player network profiles found inside Neo4j Aura.")
 
 # --- SPREADSHEET DATAFRAME VIEW ---
-st.write("---") # Visual separator line
+st.write("---")
 st.subheader("Raw Player Database Records")
 
 if not df_players.empty:
-    st.dataframe(df_players)
+    # Native Streamlit data table that handles multi-column layouts beautifully on iOS screens
+    st.dataframe(df_players, use_container_width=True)
 else:
     st.warning("No tabular player records found to display.")
 
