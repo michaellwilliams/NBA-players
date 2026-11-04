@@ -2,6 +2,6 @@ streamlit
 pandas
 neo4j>=5.24
 neo4j
-pyvis
+streamlit-agraph
 pycountry
 openai
