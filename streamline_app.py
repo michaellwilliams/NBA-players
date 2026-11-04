@@ -1,7 +1,9 @@
+
 import streamlit as st
 import pandas as pd
+import streamlit.components.v1 as components
+from pyvis.network import Network
 from neo4j import GraphDatabase
-from streamlit_agraph import agraph, Node, Edge, Config
 import pycountry
 import openai
 import os
@@ -199,22 +201,45 @@ def load_players():
     return normalize_dataframe_data(df_raw)
 
     
-    # Clean up column key casing variations so everything maps to exact matches
-    df_raw.columns = [c.lower() if c not in ["id", "Select"] else c for c in df_raw.columns]
-    
-    # Translate State abbreviations to full names
-    if "state" in df_raw.columns:
-        df_raw["state"] = df_raw["state"].map(lambda x: state_abbrev_map.get(str(x).upper(), x) if pd.notna(x) else x)
-        
-    # FIX: Convert incoming abbreviated country codes (US, USA) to full names on load
-    if "country" in df_raw.columns:
-        df_raw["country"] = df_raw["country"].map(clean_country_name)
+    # --- NEW GRAPH DISPLAY ENGINE (iOS/Safari Safe) ---
+    st.title("NBA Player Connections Graph")
 
-    if "team" in df_raw.columns:
-        # Standardize spreadsheet display cells to use our descriptive format
-        df_raw["team"] = df_raw["team"].map(match_nba_dropdown_value)
-        
-    return df_raw
+    net = Network(height="500px", width="100%", bgcolor="#ffffff", font_color="#000000")
+    df_players = load_players()
+
+    if not df_players.empty:
+        for _, row in df_players.iterrows():
+            player_id = str(row.get("id"))
+            player_name = str(row.get("name", "Unknown Player"))
+            player_team = str(row.get("team", "Free Agent"))
+            
+            net.add_node(
+                player_id, 
+                label=player_name, 
+                title=f"Team: {player_team}", 
+                color="#2b7ce9", 
+                shape="dot",
+                size=25 
+            )
+            
+        if "team" in df_players.columns:
+            grouped = df_players.groupby("team")
+            for team, group in grouped:
+                if len(group) > 1:
+                    node_ids = group["id"].astype(str).tolist()
+                    for i in range(len(node_ids)):
+                        for j in range(i + 1, len(node_ids)):
+                            net.add_edge(node_ids[i], node_ids[j], title=f"Teammates ({team})", color="#cccccc")
+
+        try:
+            net.save_graph("pyvis_graph.html")
+            with open("pyvis_graph.html", 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            components.html(html_content, height=550, scrolling=True)
+        except Exception as graph_err:
+            st.error(f"Could not render network: {str(graph_err)}")
+    else:
+        st.info("No player profiles found inside Neo4j Aura.")
 
 
 def get_player_network_subgraph(tx, player_id):
