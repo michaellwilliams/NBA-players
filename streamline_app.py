@@ -1458,21 +1458,41 @@ else:
             # Initialize the canvas viewport config ahead of the button tracking run
             config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, interaction={"hover": True, "navigationButtons": True}, collapsible=False)
 
-            # --- GLOBAL SAFARI FIX FOR STREAMLIT-AGRAPH ---
-            # This injects a high-priority CSS rule directly into the app. 
-            # Even though the SVG has height="1.25rem" hardcoded as an attribute, 
-            # this forces Safari to override it globally with standard pixel values.
-            st.markdown(
+            # --- INTERNAL IFRAME SAFARI SVG PATCH ---
+            # This injects a background script that waits for the agraph canvas to load,
+            # digs directly into its isolated sandbox, and strips the broken rem units 
+            # out of the SVG tags before Safari can flag them.
+            st.components.v1.html(
                 """
-                <style>
-                iframe[title="streamlit_agraph.agraph"] svg, 
-                svg[height="1.25rem"] {
-                    height: 20px !important;
-                    width: 20px !important;
-                }
-                </style>
+                <script>
+                const patchSvgDimensions = () => {
+                    // Look inside all stream-lit component containers on the screen
+                    const frames = window.parent.document.querySelectorAll("iframe");
+                    frames.forEach(frame => {
+                        try {
+                            // Access the inner document of the agraph frame safely
+                            const innerDoc = frame.contentDocument || frame.contentWindow.document;
+                            const badSvgs = innerDoc.querySelectorAll('svg[width="1.25rem"], svg[height="1.25rem"]');
+                            
+                            badSvgs.forEach(svg => {
+                                // Instantly rewrite the attributes to pure, safe numeric formats
+                                svg.setAttribute("width", "20");
+                                svg.setAttribute("height", "20");
+                                svg.style.width = "20px";
+                                svg.style.height = "20px";
+                            });
+                        } catch (e) {
+                            // Multi-origin blocks are bypassed gracefully here
+                        }
+                    });
+                };
+
+                // Run the patch continuously to catch nodes as they stream in from Neo4j
+                setInterval(patchSvgDimensions, 500);
+                </script>
                 """,
-                unsafe_allow_html=True
+                height=0,
+                width=0
             )
 
 
