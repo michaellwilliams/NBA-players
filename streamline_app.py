@@ -1458,6 +1458,24 @@ else:
             # Initialize the canvas viewport config ahead of the button tracking run
             config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, interaction={"hover": True, "navigationButtons": True}, collapsible=False)
 
+            # --- GLOBAL SAFARI FIX FOR STREAMLIT-AGRAPH ---
+            # This injects a high-priority CSS rule directly into the app. 
+            # Even though the SVG has height="1.25rem" hardcoded as an attribute, 
+            # this forces Safari to override it globally with standard pixel values.
+            st.markdown(
+                """
+                <style>
+                iframe[title="streamlit_agraph.agraph"] svg, 
+                svg[height="1.25rem"] {
+                    height: 20px !important;
+                    width: 20px !important;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+
             # 2. Capture whichever node is actively selected or clicked on
             # selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
