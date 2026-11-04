@@ -240,8 +240,14 @@ if not df_players.empty:
         st.error(f"Could not render network: {str(graph_err)}")
 else:
     st.info("No player profiles found inside Neo4j Aura.")
+# --- SPREADSHEET DATAFRAME VIEW ---
+st.subheader("Raw Player Database Records")
 
-
+if not df_players.empty:
+    # Safely displays the structured Neo4j dataframe columns inside a clean interactive table
+    st.dataframe(df_players)
+else:
+    st.warning("No tabular player records found to display.")
 
 def get_player_network_subgraph(tx, player_id):
     # Surgical query: Finds the player node, matches their team and college links, and pulls their team colleagues
