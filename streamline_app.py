@@ -1561,7 +1561,7 @@ else:
                 collapsible=False
             )
 
-            2. Capture whichever node is actively selected or clicked on
+            # 2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
             if selected_node_raw is not None:
