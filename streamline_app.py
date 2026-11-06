@@ -172,7 +172,7 @@ def update_user_node(tx, user_id, props):
     query = """
     MATCH (u:Player)
     WHERE elementId(u) = $user_id
-    SET u = $props
+    SET u += $props
     """
     tx.run(query, user_id=user_id, props=props)
 
