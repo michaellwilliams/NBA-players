@@ -1501,9 +1501,14 @@ else:
                             nodes.append(Node(id=alum_name, label=alum_name, size=15, color="#B2F2BB"))
                             edges.append(Edge(source=college_node_name, target=alum_name, color="#B2F2BB", width=1, label="ATTENDED", font={'color': 'black', 'size': 9, 'align': 'bottom'}))
 
+            # Initialize the canvas viewport config ahead of the button tracking run
+            # config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, nodeHighlightBehavior=True, highlightColor="#F77737", collapsible=False)
+
+            
+            # Initialize the canvas viewport config ahead of the button tracking run
             config = Config(
-                width="100%",
-                height=420,
+                width=1400,
+                height=550,
                 directed=False,
                 physics=True,
                 hierarchical=False,
@@ -1512,7 +1517,6 @@ else:
                 collapsible=False
             )
 
-            
             # 2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
