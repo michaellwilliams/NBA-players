@@ -303,6 +303,8 @@ def confirm_delete_dialog(player_ids):
 
 @st.dialog("➕ Add New Player", width="large")
 def add_player_dialog(columns):
+    if not require_admin_access(): # TODO: Make sure this works
+        return
     st.write("Fill out the properties for the new player:")
     new_props = {}
     
@@ -414,6 +416,8 @@ def add_player_dialog(columns):
 
 @st.dialog("📝 Edit Selected Player", width="large")
 def edit_player_dialog(player_id, current_props):
+    if not require_admin_access(): # TODO: Make sure this works
+        return
     # Track the active modal view state explicitly ("EDIT" or "CONFIRM_DELETE")
     view_key = f"modal_view_{player_id}"
     
@@ -425,6 +429,10 @@ def edit_player_dialog(player_id, current_props):
     # --- VIEW A: Inline Deletion Confirmation Page ---
     if st.session_state[view_key] == "CONFIRM_DELETE":
         st.subheader("⚠️ Confirm Permanent Deletion")
+
+        if not require_admin_access(): # TODO: Make sure this works.
+            return
+
         st.write("Are you sure you want to permanently delete this player node?")
         st.warning("This action cannot be undone and will clean all graph relationships.")
         st.markdown("---")
