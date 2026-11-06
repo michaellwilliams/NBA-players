@@ -1501,10 +1501,6 @@ else:
                             nodes.append(Node(id=alum_name, label=alum_name, size=15, color="#B2F2BB"))
                             edges.append(Edge(source=college_node_name, target=alum_name, color="#B2F2BB", width=1, label="ATTENDED", font={'color': 'black', 'size': 9, 'align': 'bottom'}))
 
-            # Initialize the canvas viewport config ahead of the button tracking run
-            # config = Config(width=1400, height=550, directed=False, physics=True, hierarchical=False, nodeHighlightBehavior=True, highlightColor="#F77737", collapsible=False)
-
-            
             config = Config(
                 width="100%",
                 height=420,
@@ -1528,25 +1524,25 @@ else:
                 elif clicked_clean.startswith("🏀 "):
                     clicked_clean = clicked_clean.replace("🏀 ", "")
 
-                display_name = clicked_clean.upper() if clicked_clean.isupper() else clicked_clean.title()
+                # Only allow actual player names to trigger checkbox selection.
+                # Team and college nodes will not match a player name.
+                if "name" in df.columns:
+                    matching_player = df[
+                        df["name"].astype(str).str.strip().str.casefold()
+                        == clicked_clean.casefold()
+                    ]
 
-                st.write("")
-
-                pad_l, btn_core_container, pad_r = st.columns([5.0, 2.0, 5.0])
-
-                with btn_core_container:
-                    if st.button(
-                        f"⚡ Filter for: {display_name}",
-                        type="secondary",
-                        use_container_width=True,
-                        help=f"Click to slice the data table grid down to {display_name}"
-                    ):
-                        st.session_state.search_filter = display_name.lower()
-                        st.rerun()
+                    if not matching_player.empty:
+                        if st.session_state.get("graph_selected_name") != clicked_clean:
+                            st.session_state.graph_selected_name = clicked_clean
+                            st.session_state.graph_selection_version = (
+                                st.session_state.get("graph_selection_version", 0) + 1
+                            )
+                            st.rerun()
 
             else:
                 st.markdown(
-                    "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click any graph bubble node below to filter the table</p>",
+                    "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click a player-name node to select that player</p>",
                     unsafe_allow_html=True
                 )
             
