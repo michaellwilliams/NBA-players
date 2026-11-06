@@ -17,7 +17,8 @@ def require_admin_access():
 
     # Already authorized during this session
     if st.session_state.get("admin_authorized", False):
-        return True
+        #return True
+        st.rerun()
 
     st.warning("Administrator authorization is required.")
 
