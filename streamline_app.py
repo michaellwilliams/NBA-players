@@ -239,25 +239,6 @@ def load_players():
     df_raw = pd.DataFrame(clean_records)
     return normalize_dataframe_data(df_raw)
 
-    
-    # Clean up column key casing variations so everything maps to exact matches
-    df_raw.columns = [c.lower() if c not in ["id", "Select"] else c for c in df_raw.columns]
-    
-    # Translate State abbreviations to full names
-    if "state" in df_raw.columns:
-        df_raw["state"] = df_raw["state"].map(lambda x: state_abbrev_map.get(str(x).upper(), x) if pd.notna(x) else x)
-        
-    # FIX: Convert incoming abbreviated country codes (US, USA) to full names on load
-    if "country" in df_raw.columns:
-        df_raw["country"] = df_raw["country"].map(clean_country_name)
-
-    if "team" in df_raw.columns:
-        # Standardize spreadsheet display cells to use our descriptive format
-        df_raw["team"] = df_raw["team"].map(match_nba_dropdown_value)
-        
-    return df_raw
-
-
 def get_player_network_subgraph(tx, player_id):
     # Surgical query: Finds the player node, matches their team and college links, and pulls their team colleagues
     query = """
