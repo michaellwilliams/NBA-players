@@ -557,7 +557,7 @@ def edit_player_dialog(player_id, current_props):
                     st.session_state["clear_checkboxes"] = True
                     st.rerun()
 
-                    return
+                    # return
                 
         with modal_btn_c3:
             if st.button("❌ Cancel", use_container_width=True):
