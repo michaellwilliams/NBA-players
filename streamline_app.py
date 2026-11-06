@@ -539,7 +539,7 @@ def edit_player_dialog(player_id, current_props):
                 st.session_state[view_key] = "EDIT"
                 st.rerun()
 
-st.title("🗄️ Dynamic Neo4j Player Editor")
+# st.title("🏀 Pro Basketball Player Dashboard Workspace")
 
 # --- Main Dashboard Execution Workspace ---
 # FIX: Initialize start_idx here so pagination logic doesn't crash on bootup
@@ -548,7 +548,7 @@ if "sort_asc" not in st.session_state: st.session_state.sort_asc = True
 if "dynamic_key" not in st.session_state: st.session_state.dynamic_key = "editor_v1"
 if "start_idx" not in st.session_state: st.session_state.start_idx = 0
 
-# st.title("🏀 Pro Basketball Player Dashboard Workspace")
+
 # df = load_players()
 
 
