@@ -568,13 +568,13 @@ def edit_player_dialog(player_id, current_props):
         with modal_btn_c2:
             if st.button("🗑️ Delete Player", use_container_width=True):
 
-                if require_admin_access():
-                    # Switch to deletion confirmation
+                if not st.session_state.get("admin_authorized", False):
+                    st.session_state["show_delete_password"] = True
+                    st.rerun()
+
+                else:
                     st.session_state[view_key] = "CONFIRM_DELETE"
-
-                    # Reset selected table checkboxes
                     st.session_state["clear_checkboxes"] = True
-
                     st.rerun()
 
                 
