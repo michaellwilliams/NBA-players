@@ -1050,7 +1050,8 @@ else:
 
 
     # Generate your dynamic state rendering key cleanly
-    dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
+    # dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
+    dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}_{st.session_state.get('search_filter', '')}"
     st.session_state.dynamic_key = dynamic_key
 
     # --- Dynamic Table View Configuration ---
