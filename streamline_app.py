@@ -1078,7 +1078,7 @@ else:
         col_config["country"] = st.column_config.SelectboxColumn("Country", options=world_countries)
 
     # ADD THIS LINE: Locks the team column in the spreadsheet to your valid dropdown list too
-    if "country" in df.columns:  
+    if "team" in df.columns:
         col_config["team"] = st.column_config.SelectboxColumn("Team", options=nba_dropdown_options)
 
 
