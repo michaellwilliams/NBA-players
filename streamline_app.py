@@ -1516,8 +1516,6 @@ else:
             # 2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
-            st.write("DEBUG — Graph node returned:", repr(selected_node_raw))
-
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
 
@@ -1526,25 +1524,25 @@ else:
                 elif clicked_clean.startswith("🏀 "):
                     clicked_clean = clicked_clean.replace("🏀 ", "")
 
-                # Only allow actual player names to trigger checkbox selection.
-                # Team and college nodes will not match a player name.
-                if "name" in df.columns:
-                    matching_player = df[
-                        df["name"].astype(str).str.strip().str.casefold()
-                        == clicked_clean.casefold()
-                    ]
+                display_name = clicked_clean.upper() if clicked_clean.isupper() else clicked_clean.title()
 
-                    if not matching_player.empty:
-                        if st.session_state.get("graph_selected_name") != clicked_clean:
-                            st.session_state.graph_selected_name = clicked_clean
-                            st.session_state.graph_selection_version = (
-                                st.session_state.get("graph_selection_version", 0) + 1
-                            )
-                            st.rerun()
+                st.write("")
+
+                pad_l, btn_core_container, pad_r = st.columns([5.0, 2.0, 5.0])
+
+                with btn_core_container:
+                    if st.button(
+                        f"⚡ Filter for: {display_name}",
+                        type="secondary",
+                        use_container_width=True,
+                        help=f"Click to slice the data table grid down to {display_name}"
+                    ):
+                        st.session_state.search_filter = display_name.lower()
+                        st.rerun()
 
             else:
                 st.markdown(
-                    "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click a player-name node to select that player</p>",
+                    "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click any graph bubble node below to filter the table</p>",
                     unsafe_allow_html=True
                 )
             
