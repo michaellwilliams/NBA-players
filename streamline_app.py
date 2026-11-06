@@ -548,8 +548,8 @@ if "sort_asc" not in st.session_state: st.session_state.sort_asc = True
 if "dynamic_key" not in st.session_state: st.session_state.dynamic_key = "editor_v1"
 if "start_idx" not in st.session_state: st.session_state.start_idx = 0
 
-st.title("🏀 Pro Basketball Player Dashboard Workspace")
-df = load_players()
+# st.title("🏀 Pro Basketball Player Dashboard Workspace")
+# df = load_players()
 
 
 
