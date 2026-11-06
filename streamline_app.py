@@ -1050,8 +1050,7 @@ else:
 
 
     # Generate your dynamic state rendering key cleanly
-    # dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
-    dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}_{st.session_state.get('search_filter', '')}"
+    dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
     st.session_state.dynamic_key = dynamic_key
 
     # --- Dynamic Table View Configuration ---
@@ -1522,44 +1521,12 @@ else:
                 collapsible=False
             )
 
-            # 2. Capture whichever node is actively selected or clicked on
-            # selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
-
-            # if selected_node_raw is not None:
-            #     clicked_clean = str(selected_node_raw).strip()
-
-            #     if clicked_clean.startswith("🎓 "):
-            #         clicked_clean = clicked_clean.replace("🎓 ", "")
-            #     elif clicked_clean.startswith("🏀 "):
-            #         clicked_clean = clicked_clean.replace("🏀 ", "")
-
-            #     display_name = clicked_clean.upper() if clicked_clean.isupper() else clicked_clean.title()
-
-            #     st.write("")
-
-            #     pad_l, btn_core_container, pad_r = st.columns([5.0, 2.0, 5.0])
-
-            #     with btn_core_container:
-            #         if st.button(
-            #             f"⚡ Filter for: {display_name}",
-            #             type="secondary",
-            #             use_container_width=True,
-            #             help=f"Click to slice the data table grid down to {display_name}"
-            #         ):
-            #             st.session_state.search_filter = display_name.lower()
-            #             st.rerun()
-
-            # else:
-            #     st.markdown(
-            #         "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click any graph bubble node below to filter the table</p>",
-            #         unsafe_allow_html=True
-            #     )
-###################################################################
-            # 2. Capture whichever node is actively selected or clicked on
+            2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
+
                 if clicked_clean.startswith("🎓 "):
                     clicked_clean = clicked_clean.replace("🎓 ", "")
                 elif clicked_clean.startswith("🏀 "):
@@ -1580,13 +1547,13 @@ else:
                     ):
                         st.session_state.search_filter = display_name.lower()
                         st.rerun()
+
             else:
                 st.markdown(
                     "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click any graph bubble node below to filter the table</p>",
                     unsafe_allow_html=True
                 )
-
-##################################################################            
+         
     # --- CLEAR THE GRAPH COMPLETELY WHEN 0 ROWS ARE SELECTED ---
     else:
         st.empty()
