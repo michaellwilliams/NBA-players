@@ -1040,9 +1040,11 @@ else:
         else:
             col_config[col] = st.column_config.Column(col.title())
 
+
+
     # Generate your dynamic state rendering key cleanly
     dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
-    st.session_state.dynamic_key = dynamic_key
+st.session_state.dynamic_key = dynamic_key
 
     # --- Dynamic Table View Configuration ---
     col_config = {
@@ -1358,15 +1360,6 @@ else:
         cols_ordered = ["select"] + [c for c in cleaned_sliced_df.columns if c != "select"]
         cleaned_sliced_df = cleaned_sliced_df[cols_ordered]
 
-    # Apply player selection made from the relationship graph
-    graph_player_id = st.session_state.pop("graph_selected_player_id", None)
-
-    if graph_player_id is not None and "id" in cleaned_sliced_df.columns:
-        # Uncheck every player, then check only the graph-selected player
-        cleaned_sliced_df["select"] = (
-            cleaned_sliced_df["id"].astype(str) == str(graph_player_id)
-        )
-
     lowercase_col_config = {str(k).lower(): v for k, v in col_config.items()}
 
     # Check row selection changes via data_editor 
@@ -1526,29 +1519,36 @@ else:
             
             # 2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
-            
+
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
-                # Match the clicked graph node to a player in the full player DataFrame
-                player_match = df[
-                    df["name"].astype(str).str.strip().str.casefold()
-                    == clicked_clean.casefold()
-                ]
 
-                if not player_match.empty:
-                    # Store the selected player's actual Neo4j ID
-                    st.session_state.graph_selected_player_id = player_match.iloc[0]["id"]
+                if clicked_clean.startswith("🎓 "):
+                    clicked_clean = clicked_clean.replace("🎓 ", "")
+                elif clicked_clean.startswith("🏀 "):
+                    clicked_clean = clicked_clean.replace("🏀 ", "")
 
-                    # Increment the version so the table can refresh its checkbox state
-                    st.session_state.graph_selection_version = (
-                        st.session_state.get("graph_selection_version", 0) + 1
-                    )
+                display_name = clicked_clean.upper() if clicked_clean.isupper() else clicked_clean.title()
 
-                    st.rerun()
-                else:
-                    st.info("This graph node is not a player in the current player database.")          
-        else:
-            st.info("No explicit structural relationships found for this node inside the graph database.")
+                st.write("")
+
+                pad_l, btn_core_container, pad_r = st.columns([5.0, 2.0, 5.0])
+
+                with btn_core_container:
+                    if st.button(
+                        f"⚡ Filter for: {display_name}",
+                        type="secondary",
+                        use_container_width=True,
+                        help=f"Click to slice the data table grid down to {display_name}"
+                    ):
+                        st.session_state.search_filter = display_name.lower()
+                        st.rerun()
+
+            else:
+                st.markdown(
+                    "<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click any graph bubble node below to filter the table</p>",
+                    unsafe_allow_html=True
+                )
             
     # --- CLEAR THE GRAPH COMPLETELY WHEN 0 ROWS ARE SELECTED ---
     else:
