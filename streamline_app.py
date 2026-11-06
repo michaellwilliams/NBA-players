@@ -539,7 +539,7 @@ def edit_player_dialog(player_id, current_props):
                 st.session_state[view_key] = "EDIT"
                 st.rerun()
 
-# st.title("🏀 Pro Basketball Player Dashboard Workspace")
+st.title("🏀 Pro Basketball Player Dashboard Workspace")
 
 # --- Main Dashboard Execution Workspace ---
 # FIX: Initialize start_idx here so pagination logic doesn't crash on bootup
