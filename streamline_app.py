@@ -702,41 +702,101 @@ def translate_text_to_cypher(user_prompt):
         return None
 
 
+
 def load_filtered_players(cypher_query):
-    with driver.session() as session:
-        try:
-            # Expose the active query inside a container so you can verify it
-            st.sidebar.info("🤖 Executing AI Cypher Statement:")
-            st.sidebar.code(cypher_query, language="cypher")
-            
-            result = session.run(cypher_query)
-            players = []
-            for record in result:
-                props = record["props"] or {}
-                
-                # FIX: Handle cases where props might accidentally return as a list or nested structure
-                if isinstance(props, list):
-                    props = props[0] if props else {}
-                elif not isinstance(props, dict):
-                    props = dict(props)
-                    
-                players.append({"id": record["id"], **props})
-                
-            if not players: 
-                return pd.DataFrame()
-                
-            df_raw = pd.DataFrame(players)
-            
-            # Normalize property keys back to lowercase
-            df_raw.columns = [c.lower() if c not in ["id", "Select"] else c for c in df_raw.columns]
-            
-            # FIX: Instantly drop duplicate column names before running any normalization scripts
-            df_raw = df_raw.loc[:, ~df_raw.columns.duplicated()]
-            
-            return normalize_dataframe_data(df_raw)
-        except Exception as e:
-            st.error(f"⚠️ Neo4j Cypher Execution Error: {e}")
+    import re
+
+    # Reject empty or non-string queries
+    if not isinstance(cypher_query, str) or not cypher_query.strip():
+        st.error("GraphRAG rejected an empty query.")
+        return pd.DataFrame()
+
+    query = cypher_query.strip()
+
+    # Basic safeguards against write operations and dangerous clauses
+    blocked_keywords = [
+        "CREATE",
+        "MERGE",
+        "DELETE",
+        "DETACH",
+        "SET",
+        "REMOVE",
+        "DROP",
+        "ALTER",
+        "GRANT",
+        "DENY",
+        "REVOKE",
+        "LOAD CSV",
+        "CALL",
+        "FOREACH",
+        "USE"
+    ]
+
+    # Reject multiple statements and Cypher comments
+    if ";" in query or "//" in query or "/*" in query:
+        st.error("GraphRAG rejected the query: unsupported syntax.")
+        return pd.DataFrame()
+
+    # Reject write-related or restricted keywords
+    for keyword in blocked_keywords:
+        pattern = r"\b" + re.escape(keyword) + r"\b"
+        if re.search(pattern, query, re.IGNORECASE):
+            st.error(
+                f"GraphRAG rejected the query: "
+                f"'{keyword}' is not permitted."
+            )
             return pd.DataFrame()
+
+    # Require a read query
+    if not re.match(r"^\s*(MATCH|OPTIONAL\s+MATCH)\b", query, re.IGNORECASE):
+        st.error("GraphRAG only permits MATCH-based read queries.")
+        return pd.DataFrame()
+
+    if not re.search(r"\bRETURN\b", query, re.IGNORECASE):
+        st.error("GraphRAG query must contain RETURN.")
+        return pd.DataFrame()
+
+    try:
+        st.sidebar.info("🤖 Executing Read-Only AI Cypher Statement:")
+        st.sidebar.code(query, language="cypher")
+
+        # Execute through a managed read transaction
+        with driver.session() as session:
+            records = session.execute_read(
+                lambda tx: list(tx.run(query))
+            )
+
+        players = []
+
+        for record in records:
+            props = record["props"] or {}
+
+            if isinstance(props, list):
+                props = props[0] if props else {}
+            elif not isinstance(props, dict):
+                props = dict(props)
+
+            players.append({"id": record["id"], **props})
+
+        if not players:
+            return pd.DataFrame()
+
+        df_raw = pd.DataFrame(players)
+
+        # Normalize property names
+        df_raw.columns = [
+            c.lower() if c not in ["id", "Select"] else c
+            for c in df_raw.columns
+        ]
+
+        # Remove duplicate columns
+        df_raw = df_raw.loc[:, ~df_raw.columns.duplicated()]
+
+        return normalize_dataframe_data(df_raw)
+
+    except Exception as e:
+        st.error(f"⚠️ Neo4j Read-Only Query Error: {e}")
+        return pd.DataFrame()
 
 
 
