@@ -1014,20 +1014,8 @@ else:
         "select": st.column_config.CheckboxColumn("Select", help="Check row to activate Edit/Delete actions", default=False)
     }  
     
-        # --- Dynamic Table View Configuration ---
-    # Start with your strict structural column defaults (all keys forced to lowercase)
-    col_config = {
-        "id": None
-    }  
-    
     # Track if we have already configured the checkbox column once
     has_checkbox_assigned = False
-    
-        # --- Dynamic Table View Configuration ---
-    # Start with your strict structural column defaults (all keys forced to lowercase)
-    col_config = {
-        "id": None
-    }  
     
     # Dynamically build a configuration layout for EVERY active column in your DataFrame
     for col in df.columns:
