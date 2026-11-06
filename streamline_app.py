@@ -696,13 +696,6 @@ def translate_text_to_cypher(user_prompt):
         st.error(f"LLM Translation Error: {e}")
         return None
 
-
-    except Exception as e:
-        st.error(f"LLM Translation Error: {e}")
-        return None
-
-
-
 def load_filtered_players(cypher_query):
     import re
 
