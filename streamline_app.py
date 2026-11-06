@@ -1358,6 +1358,15 @@ else:
         cols_ordered = ["select"] + [c for c in cleaned_sliced_df.columns if c != "select"]
         cleaned_sliced_df = cleaned_sliced_df[cols_ordered]
 
+    # Apply player selection made from the relationship graph
+    graph_player_id = st.session_state.pop("graph_selected_player_id", None)
+
+    if graph_player_id is not None and "id" in cleaned_sliced_df.columns:
+        # Uncheck every player, then check only the graph-selected player
+        cleaned_sliced_df["select"] = (
+            cleaned_sliced_df["id"].astype(str) == str(graph_player_id)
+        )
+
     lowercase_col_config = {str(k).lower(): v for k, v in col_config.items()}
 
     # Check row selection changes via data_editor 
