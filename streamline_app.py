@@ -1054,10 +1054,10 @@ else:
 
 
     # --- Dynamic Table View Configuration ---
-    # col_config = {
-    #     "id": None,
-    #     "Select": st.column_config.CheckboxColumn("Select", help="Check row to activate Edit/Delete actions", default=False)
-    # }  
+    col_config = {
+        "id": None,
+        "Select": st.column_config.CheckboxColumn("Select", help="Check row to activate Edit/Delete actions", default=False)
+    }  
     if "state" in df.columns:
         col_config["state"] = st.column_config.SelectboxColumn("US State", options=us_states)
         
