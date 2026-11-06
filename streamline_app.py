@@ -1044,7 +1044,7 @@ else:
 
     # Generate your dynamic state rendering key cleanly
     dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
-st.session_state.dynamic_key = dynamic_key
+    st.session_state.dynamic_key = dynamic_key
 
     # --- Dynamic Table View Configuration ---
     col_config = {
