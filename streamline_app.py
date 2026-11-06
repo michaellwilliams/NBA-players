@@ -7,6 +7,39 @@ import openai
 import os
 import time
 
+
+
+# ==========================================
+# ADMINISTRATOR PASSWORD PROTECTION
+# ==========================================
+
+def require_admin_access():
+
+    # Already authorized during this session
+    if st.session_state.get("admin_authorized", False):
+        return True
+
+    st.warning("Administrator authorization is required.")
+
+    password = st.text_input(
+        "Administrator Password",
+        type="password",
+        key="admin_password_input"
+    )
+
+    if st.button("🔐 Unlock Admin Actions", key="unlock_admin_actions"):
+
+        if password == st.secrets["ADMIN_PASSWORD"]:
+            st.session_state["admin_authorized"] = True
+            st.success("Administrator access granted.")
+            return True
+
+        else:
+            st.error("Incorrect administrator password.")
+
+    return False
+########################################################
+
 # --- Main UI Setup ---
 st.set_page_config(
     page_title="Player Editor Dashboard",
@@ -253,7 +286,6 @@ def get_player_network_subgraph(tx, player_id):
 
 
 # --- Dialog Windows (Modals) ---
-
 @st.dialog("⚠️ Confirm Deletion")
 def confirm_delete_dialog(player_ids):
     st.write(f"Are you sure you want to permanently delete **{len(player_ids)}** selected player(s)?")
