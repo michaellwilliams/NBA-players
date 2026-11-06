@@ -565,40 +565,18 @@ def edit_player_dialog(player_id, current_props):
                 st.rerun()
 
                 
-        # with modal_btn_c2:
-        #     if st.button("🗑️ Delete Player", use_container_width=True):
-        #         if not require_admin_access(): # TODO: Make sure this works
-        #             return
-        #         # 1. Flip the state variable strictly to the confirmation string name
-        #         st.session_state[view_key] = "CONFIRM_DELETE"
-                    
-        #         # 2. Tell the table on the main page to reset its checked boxes
-        #         st.session_state["clear_checkboxes"] = True
-        #         st.rerun()
-
         with modal_btn_c2:
             if st.button("🗑️ Delete Player", use_container_width=True):
-                st.session_state[f"show_delete_password_{player_id}"] = True
-                st.rerun()
-
-        # Display password prompt after clicking Delete Player
-        if st.session_state.get(f"show_delete_password_{player_id}", False):
-
-            password = st.text_input(
-                "Administrator Password",
-                type="password",
-                key=f"delete_password_{player_id}"
-            )
-
-            if st.button("🔐 Verify Password", key=f"verify_delete_{player_id}"):
-
-                if password == st.secrets["ADMIN_PASSWORD"]:
-                    st.session_state[f"show_delete_password_{player_id}"] = False
+                if require_admin_access(): # TODO: Make sure this works
+                    # 1. Flip the state variable strictly to the confirmation string name
                     st.session_state[view_key] = "CONFIRM_DELETE"
+                        
+                    # 2. Tell the table on the main page to reset its checked boxes
                     st.session_state["clear_checkboxes"] = True
                     st.rerun()
                 else:
-                    st.error("Incorrect password.")
+                    exit
+
                 
         with modal_btn_c3:
             if st.button("❌ Cancel", use_container_width=True):
