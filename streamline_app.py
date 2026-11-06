@@ -416,12 +416,17 @@ def add_player_dialog(columns):
 
 @st.dialog("📝 Edit Selected Player", width="large")
 def edit_player_dialog(player_id, current_props):
-    if not require_admin_access(): # TODO: Make sure this works
-        return
-    # Track the active modal view state explicitly ("EDIT" or "CONFIRM_DELETE")
+
+    # Track the active modal view
     view_key = f"modal_view_{player_id}"
-    
-    # If the user opens this modal for a completely new player, or if it's missing, default to the EDIT form view
+
+    # Track Delete authorization prompt
+    auth_key = f"delete_auth_{player_id}"
+
+    if auth_key not in st.session_state:
+        st.session_state[auth_key] = False
+
+    # Initialize modal view
     if view_key not in st.session_state or st.session_state.get("last_opened_id") != player_id:
         st.session_state[view_key] = "EDIT"
         st.session_state["last_opened_id"] = player_id
@@ -567,15 +572,29 @@ def edit_player_dialog(player_id, current_props):
                 
         with modal_btn_c2:
             if st.button("🗑️ Delete Player", use_container_width=True):
-                if not require_admin_access():
-                    return    
-                # if require_admin_access():
-                    # 1. Flip the state variable strictly to the confirmation string name
+                st.session_state[f"delete_auth_{player_id}"] = True
+                st.rerun()
+
+        # Display administrator password immediately after Delete Player is clicked
+        if st.session_state.get(f"delete_auth_{player_id}", False):
+
+            password = st.text_input(
+                "Enter Administrator Password",
+                type="password",
+                key=f"delete_password_{player_id}"
+            )
+
+            if st.button("🔐 Verify Password", key=f"verify_delete_{player_id}"):
+
+                if password == st.secrets["ADMIN_PASSWORD"]:
+                    st.session_state["admin_authorized"] = True
+                    st.session_state[f"delete_auth_{player_id}"] = False
                     st.session_state[view_key] = "CONFIRM_DELETE"
-                    
-                    # 2. Tell the table on the main page to reset its checked boxes
                     st.session_state["clear_checkboxes"] = True
                     st.rerun()
+
+                else:
+                    st.error("Incorrect administrator password.")
                 
         with modal_btn_c3:
             if st.button("❌ Cancel", use_container_width=True):
