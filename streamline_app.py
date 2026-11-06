@@ -1040,8 +1040,6 @@ else:
         else:
             col_config[col] = st.column_config.Column(col.title())
 
-
-
     # Generate your dynamic state rendering key cleanly
     dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
     st.session_state.dynamic_key = dynamic_key
@@ -1522,33 +1520,24 @@ else:
             
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
-                if clicked_clean.startswith("🎓 "): clicked_clean = clicked_clean.replace("🎓 ", "")
-                elif clicked_clean.startswith("🏀 "): clicked_clean = clicked_clean.replace("🏀 ", "")
-                display_name = clicked_clean.upper() if clicked_clean.isupper() else clicked_clean.title()
+                # Match the clicked graph node to a player in the full player DataFrame
+                player_match = df[
+                    df["name"].astype(str).str.strip().str.casefold()
+                    == clicked_clean.casefold()
+                ]
 
-                st.write("") # Small padding spacer line
-                
-                # 3. FIX: COMPACT 20% WIDTH CENTER CONTAINER ROW PLACED RIGHT UNDER THE TITLE HEADER
-                # Allocating 4.0 side pads and a 2.0 center container forces the button to narrow down perfectly
-                pad_l, btn_core_container, pad_r = st.columns([5.0, 2.0, 5.0])
-                
-                with btn_core_container:
-                    # Renders a low-key, compact secondary button with subtle text descriptions
-                    if st.button(
-                        f"⚡ Filter for: {display_name}", 
-                        type="secondary", 
-                        use_container_width=True,
-                        help=f"Click to slice the data table grid down to {display_name}"
-                    ):
-                        if len(display_name) <= 4 and display_name.isupper():
-                            st.session_state.search_filter = display_name.lower()
-                        else:
-                            st.session_state.search_filter = display_name.lower()
-                        st.rerun()
-            else:
-                # Symmetrical placeholder text to maintain identical padding row height when no node is active
-                st.markdown("<p style='text-align: center; font-size: 12px; color: #9da5b1; margin-bottom: 5px; font-style: italic;'>Click any graph bubble node below to filter the table</p>", unsafe_allow_html=True)
-            
+                if not player_match.empty:
+                    # Store the selected player's actual Neo4j ID
+                    st.session_state.graph_selected_player_id = player_match.iloc[0]["id"]
+
+                    # Increment the version so the table can refresh its checkbox state
+                    st.session_state.graph_selection_version = (
+                        st.session_state.get("graph_selection_version", 0) + 1
+                    )
+
+                    st.rerun()
+                else:
+                    st.info("This graph node is not a player in the current player database.")          
         else:
             st.info("No explicit structural relationships found for this node inside the graph database.")
             
