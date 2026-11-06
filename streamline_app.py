@@ -7,6 +7,9 @@ import openai
 import os
 import time
 
+# --- Main UI Setup ---
+st.set_page_config(page_title="Player Editor Dashboard", layout="wide")
+
 # --- Configuration & State List ---
 NEO4J_URI = st.secrets["NEO4J_URI"]
 NEO4J_USER = st.secrets["NEO4J_USER"]
@@ -531,8 +534,6 @@ def edit_player_dialog(player_id, current_props):
                 st.session_state[view_key] = "EDIT"
                 st.rerun()
 
-# --- Main UI Setup ---
-st.set_page_config(page_title="Player Editor Dashboard", layout="wide")
 st.title("🗄️ Dynamic Neo4j Player Editor")
 
 # --- Main Dashboard Execution Workspace ---
