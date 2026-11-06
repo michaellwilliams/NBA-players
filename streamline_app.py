@@ -1019,8 +1019,15 @@ else:
             continue
             
         # FIX: COMPLETELY HIDE OUR MANUAL SELECT COLUMN SO IT DOES NOT DUPLICATE ON THE RIGHT
+        # elif norm_col == "select":
+        #     col_config[col] = None
+
         elif norm_col == "select":
-            col_config[col] = None
+            col_config[col] = st.column_config.CheckboxColumn(
+                "Select",
+                help="Check row to activate Edit/Delete actions",
+                default=False
+            )
             
         # Assign special cell pickers for your dropdown fields
         elif norm_col == "state":
