@@ -8,7 +8,12 @@ import os
 import time
 
 # --- Main UI Setup ---
-st.set_page_config(page_title="Player Editor Dashboard", layout="wide")
+st.set_page_config(
+    page_title="Player Editor Dashboard",
+    page_icon="🏀",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # --- Configuration & State List ---
 NEO4J_URI = st.secrets["NEO4J_URI"]
