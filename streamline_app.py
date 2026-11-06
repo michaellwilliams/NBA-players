@@ -567,8 +567,9 @@ def edit_player_dialog(player_id, current_props):
                 
         with modal_btn_c2:
             if st.button("🗑️ Delete Player", use_container_width=True):
-
-                if require_admin_access():
+                if not require_admin_access():
+                    return    
+                # if require_admin_access():
                     # 1. Flip the state variable strictly to the confirmation string name
                     st.session_state[view_key] = "CONFIRM_DELETE"
                     
