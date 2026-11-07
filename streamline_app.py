@@ -412,10 +412,9 @@ def edit_player_dialog(player_id, current_props):
 
     # --- VIEW A: Inline Deletion Confirmation Page ---
     if st.session_state[view_key] == "CONFIRM_DELETE":
+        if not require_admin_access(): # TODO2: Make sure this works.
+                    return
         st.subheader("⚠️ Confirm Permanent Deletion")
-
-        if not require_admin_access(): # TODO: Make sure this works.
-            return
 
         st.write("Are you sure you want to permanently delete this player node?")
         st.warning("This action cannot be undone and will clean all graph relationships.")
