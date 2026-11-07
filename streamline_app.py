@@ -1399,14 +1399,36 @@ else:
     lowercase_col_config = {str(k).lower(): v for k, v in col_config.items()}
 
     # Check row selection changes via data_editor 
+    # edited_df = st.data_editor(
+    #     cleaned_sliced_df,  
+    #     key=st.session_state.dynamic_key,
+    #     column_config=lowercase_col_config,  
+    #     hide_index=True,
+    #     height=570,
+    #     use_container_width=True
+    # )
+
+    ##################################################
+    # Require administrator authorization for inline editing
+    admin_access = require_admin_access()
+
+    # Lock all player fields until administrator authorization
+    # Keep the Select checkbox available for row selection
+    disabled_columns = [] if admin_access else [
+        col for col in cleaned_sliced_df.columns if col != "select"
+    ]
+
+    # Check row selection changes via data_editor
     edited_df = st.data_editor(
-        cleaned_sliced_df,  
+        cleaned_sliced_df,
         key=st.session_state.dynamic_key,
-        column_config=lowercase_col_config,  
+        column_config=lowercase_col_config,
+        disabled=disabled_columns,
         hide_index=True,
         height=570,
         use_container_width=True
     )
+    ##################################################
 
 
     # 2. FIX: Capture ALL checkbox clicks from Streamlit's editor memory block into a list
@@ -1589,7 +1611,10 @@ else:
 
 
     # --- Background Spreadsheet Auto-Save Engine ---
-    has_real_edits = False
+    # has_real_edits = False
+    ####################################################################
+    if has_real_edits and st.session_state.get("admin_authorized", False):
+    ####################################################################
     
     # Extract the inline cell updates safely before the saving loop runs
     editor_state_data = st.session_state.get(st.session_state.dynamic_key, {})
