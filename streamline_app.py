@@ -1613,7 +1613,7 @@ else:
     # --- Background Spreadsheet Auto-Save Engine ---
     # has_real_edits = False
     ####################################################################
-    if has_real_edits and st.session_state.get("admin_authorized", False):
+        if has_real_edits and st.session_state.get("admin_authorized", False):
     ####################################################################
     
     # Extract the inline cell updates safely before the saving loop runs
