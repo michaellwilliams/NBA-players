@@ -1392,17 +1392,6 @@ else:
 
     lowercase_col_config = {str(k).lower(): v for k, v in col_config.items()}
 
-    # Check row selection changes via data_editor 
-    # edited_df = st.data_editor(
-    #     cleaned_sliced_df,  
-    #     key=st.session_state.dynamic_key,
-    #     column_config=lowercase_col_config,  
-    #     hide_index=True,
-    #     height=570,
-    #     use_container_width=True
-    # )
-
-    ##################################################
     # Require administrator authorization for inline editing
     admin_access = require_admin_access("inline_editor")
 
@@ -1411,6 +1400,16 @@ else:
     disabled_columns = [] if admin_access else [
         col for col in cleaned_sliced_df.columns if col != "select"
     ]
+
+    # Automatically select the player chosen from the graph
+    graph_player = st.session_state.pop("graph_selected_player", None)
+
+    if graph_player:
+        if "select" in cleaned_sliced_df.columns:
+            cleaned_sliced_df["select"] = (
+                cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
+                == graph_player.strip().lower()
+            )
 
     # Check row selection changes via data_editor
     edited_df = st.data_editor(
@@ -1590,7 +1589,11 @@ else:
                         use_container_width=True,
                         help=f"Click to slice the data table grid down to {display_name}"
                     ):
+                        # st.session_state.search_filter = display_name.lower()
+                        # st.rerun()
+
                         st.session_state.search_filter = display_name.lower()
+                        st.session_state.graph_selected_player = display_name
                         st.rerun()
 
             else:
