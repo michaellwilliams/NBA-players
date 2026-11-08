@@ -1073,7 +1073,16 @@ else:
 
 
     # Generate your dynamic state rendering key cleanly
-    dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
+    #dynamic_key = f"player_editor_{current_start}_{st.session_state.sort_col}_{st.session_state.sort_asc}"
+    #st.session_state.dynamic_key = dynamic_key
+
+    # Generate a new editor key whenever the graph filter changes
+    dynamic_key = (
+        f"player_editor_{current_start}_"
+        f"{st.session_state.sort_col}_"
+        f"{st.session_state.sort_asc}_"
+        f"{st.session_state.get('graph_selection_version', 0)}"
+    )
     st.session_state.dynamic_key = dynamic_key
 
     # --- Dynamic Table View Configuration ---
@@ -1593,6 +1602,9 @@ else:
 
                         st.session_state.search_filter = display_name.lower()
                         st.session_state.graph_selected_player = display_name
+                        st.session_state.graph_selection_version = (
+                            st.session_state.get("graph_selection_version", 0) + 1
+                        )
 
                         st.rerun()
 
