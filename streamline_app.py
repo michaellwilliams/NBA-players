@@ -39,7 +39,6 @@ def require_admin_access(dialog_name):
             st.error("Incorrect administrator password.")
 
     return False
-########################################################
 
 # --- Main UI Setup ---
 st.set_page_config(
@@ -78,7 +77,6 @@ us_states = {v: k for k, v in state_to_abbrev_map.items()}
 
 # GENERATE THE GLOBAL COUNTRY ARRAY BELOW YOUR STATE LIST
 world_countries = sorted([country.name for country in pycountry.countries])
-
 
 nba_teams_map = {
     "ATL": "Atlanta Hawks", "BOS": "Boston Celtics", "BKN": "Brooklyn Nets", "CHA": "Charlotte Hornets", 
@@ -147,9 +145,7 @@ def match_nba_dropdown_value(val):
 
     return val
 
-
 # --- Database Drivers & Functions ---
-
 @st.cache_resource
 def get_driver():
     driver = GraphDatabase.driver(
@@ -165,7 +161,6 @@ def get_driver():
     except Exception:
         driver.close()
         raise
-
 
 try:
     driver = get_driver()
@@ -235,7 +230,6 @@ def load_players():
             else:
                 clean_row[str(k).lower().strip()] = v
         clean_records.append(clean_row)
-    # ---------------------------------------------------------------------------------
         
     df_raw = pd.DataFrame(clean_records)
     return normalize_dataframe_data(df_raw)
@@ -265,7 +259,6 @@ def get_player_network_subgraph(tx, player_id):
         "college": record["college_name"],
         "teammates": record["teammates"] or []
     }
-
 
 # --- Dialog Windows (Modals) ---
 @st.dialog("⚠️ Confirm Deletion")
@@ -304,7 +297,6 @@ def add_player_dialog(columns):
     )
 
     v_num = st.session_state.get("add_form_version", 0)
-
 
     for i in range(0, len(form_cols), 3):
         chunk = form_cols[i:i+3]
@@ -352,7 +344,6 @@ def add_player_dialog(columns):
                     elif norm_k == "orb%": db_key = "ORB%"
                     elif norm_k == "ast%": db_key = "AST%"
                     elif norm_k == "usg%": db_key = "USG%"
-                    # ----------------------------------------------------------------------
 
                     # 2. SAFE NUMBER CONVERSION: Handle decimals (floats) and integers cleanly
                     val_str = str(v).strip()
@@ -372,7 +363,6 @@ def add_player_dialog(columns):
                 st.session_state["clear_checkboxes"] = True
                 if "dynamic_key" in st.session_state:
                     st.session_state["dynamic_key"] = f"editor_{int(time.time())}"
-                    
                 st.success("Player created successfully!")
                 st.rerun()
             else:
@@ -413,7 +403,6 @@ def edit_player_dialog(player_id, current_props):
     # --- VIEW A: Inline Deletion Confirmation Page ---
     if st.session_state[view_key] == "CONFIRM_DELETE":
         st.subheader("⚠️ Confirm Permanent Deletion")
-
         st.write("Are you sure you want to permanently delete this player node?")
         st.warning("This action cannot be undone and will clean all graph relationships.")
         st.markdown("---")
@@ -497,9 +486,7 @@ def edit_player_dialog(player_id, current_props):
                             updated_props[orig_key] = st.number_input(col.title(), value=num_val, key=w_key)
                         else:
                             updated_props[orig_key] = st.text_input(col.title(), value=str(val) if pd.notna(val) else "", key=w_key)
-
-
-                
+         
         st.markdown("---")
         modal_btn_c1, modal_btn_c2, modal_btn_c3 = st.columns(3)
         
@@ -518,7 +505,6 @@ def edit_player_dialog(player_id, current_props):
                         db_key = "College"
                     elif k.lower() == "name":
                         db_key = "Name"
-                    # -------------------------------------------------------------------------
 
                     if v == "" or pd.isna(v):
                         final_props[db_key] = ""
@@ -545,7 +531,6 @@ def edit_player_dialog(player_id, current_props):
                 st.success("Player updated successfully!")
                 st.rerun()
 
-                
         with modal_btn_c2:
             if st.button("🗑️ Delete Player", use_container_width=True):
                 # 1. Flip the state variable strictly to the confirmation string name
@@ -570,11 +555,6 @@ if "sort_col" not in st.session_state: st.session_state.sort_col = "name"
 if "sort_asc" not in st.session_state: st.session_state.sort_asc = True
 if "dynamic_key" not in st.session_state: st.session_state.dynamic_key = "editor_v1"
 if "start_idx" not in st.session_state: st.session_state.start_idx = 0
-
-
-# df = load_players()
-
-
 
 # --- Initialize Global Session Variables (PLACE OUTSIDE ELSE BLOCKS) ---
 if "add_form_version" not in st.session_state:
@@ -701,8 +681,6 @@ def translate_text_to_cypher(user_prompt):
     MATCH (m:Player) WHERE toLower(m.Name) CONTAINS "michael jordan" WITH m.`Games` AS mjGames, m.`FG%` AS mjFg MATCH (u:Player) WHERE u.`Games` > mjGames AND u.`FG%` > mjFg RETURN elementId(u) AS id, properties(u) AS props
     """
 
-
-
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -814,8 +792,6 @@ def load_filtered_players(cypher_query):
         st.error(f"⚠️ Neo4j Read-Only Query Error: {e}")
         return pd.DataFrame()
 
-
-
 # --- STEP 1: INITIALIZE DATA FIRST (At the root indentation level) ---
 # FIXED: Changed bracket syntax to .get() to permanently eliminate the KeyError crash
 if st.session_state.get("rag_query"):
@@ -868,7 +844,6 @@ else:
             index=0
         )
 
-
     with sort_c2:
         direction = st.radio("Direction", options=["Ascending", "Descending"], horizontal=True)
         is_ascending = (direction == "Ascending")
@@ -907,7 +882,6 @@ else:
         st.session_state.start_idx = 0  
         st.rerun()
 
-
     # 1. NUCLEAR CLEANUP: Rebuild columns as completely unique strings right at the source
     df.columns = [str(c).strip().lower() for c in df.columns]
     
@@ -939,7 +913,6 @@ else:
         sort_order = natural_sort_key(sort_target)
         df['__sort_idx__'] = sort_order
         df = df.sort_values(by='__sort_idx__', ascending=st.session_state.sort_asc).drop(columns=['__sort_idx__']).reset_index(drop=True)
-
 
     if "Select" not in df.columns:
         df.insert(0, "Select", False)
@@ -1411,14 +1384,33 @@ else:
     ]
 
     # Automatically select the player chosen from the graph
+    # graph_player = st.session_state.pop("graph_selected_player", None)
+
+    # if graph_player:
+    #     if "select" in cleaned_sliced_df.columns:
+    #         cleaned_sliced_df["select"] = (
+    #             cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
+    #             == graph_player.strip().lower()
+    #         )
+
+    # Automatically select ONLY ONE row for the player chosen from the graph
     graph_player = st.session_state.pop("graph_selected_player", None)
 
-    if graph_player:
-        if "select" in cleaned_sliced_df.columns:
-            cleaned_sliced_df["select"] = (
-                cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
-                == graph_player.strip().lower()
-            )
+    if graph_player and "select" in cleaned_sliced_df.columns:
+
+        # Clear previous selections
+        cleaned_sliced_df["select"] = False
+
+        # Find all records belonging to the selected player
+        matching_rows = cleaned_sliced_df[
+            cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
+            == graph_player.strip().lower()
+        ]
+
+        # Select only the first matching record
+        if not matching_rows.empty:
+            cleaned_sliced_df.loc[matching_rows.index[0], "select"] = True
+#####################################################################
 
     # Check row selection changes via data_editor
     edited_df = st.data_editor(
