@@ -1425,26 +1425,23 @@ else:
 
 
     # 2. FIX: Capture ALL checkbox clicks from Streamlit's editor memory block into a list
+    # Capture selected players directly from the edited dataframe
     selected_player_ids = []
     selected_player_props = {}
 
-    # Extract edit dictionary history from the data_editor state
-    editor_state = st.session_state.get(st.session_state.dynamic_key, {})
-    edited_rows = editor_state.get("edited_rows", {})
+    if "select" in edited_df.columns:
+        selected_rows = edited_df[
+            edited_df["select"].fillna(False).astype(bool)
+        ]
 
-    for row_idx_str, changes in edited_rows.items():
-        is_checked = changes.get("select") is True or changes.get("Select") is True
-        
-        if is_checked:
-            row_idx = int(row_idx_str)
-            if row_idx < len(cleaned_sliced_df):
-                selected_row_data = cleaned_sliced_df.iloc[row_idx]
-                p_id = selected_row_data.get("id")
+        for _, selected_row in selected_rows.iterrows():
+            p_id = selected_row.get("id")
+
+            if pd.notna(p_id):
                 selected_player_ids.append(p_id)
-                
-                # Keep track of props for the single-edit fallback
+
                 if len(selected_player_ids) == 1:
-                    selected_player_props = selected_row_data.to_dict()
+                    selected_player_props = selected_row.to_dict()
 
     # --- Navigation Panel & Unified Bottom Control Row ---
     st.markdown("---")
