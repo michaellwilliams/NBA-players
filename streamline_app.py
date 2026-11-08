@@ -1404,7 +1404,7 @@ else:
 
     ##################################################
     # Require administrator authorization for inline editing
-    admin_access = require_admin_access()
+    admin_access = require_admin_access("inline_editor")
 
     # Lock all player fields until administrator authorization
     # Keep the Select checkbox available for row selection
