@@ -1573,6 +1573,9 @@ else:
             # 2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
+            st.write("DEBUG - Graph selection:", repr(selected_node_raw))
+            st.write("DEBUG - Last graph node:", repr(st.session_state.get("last_graph_node")))
+
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
 
