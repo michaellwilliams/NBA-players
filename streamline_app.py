@@ -1243,7 +1243,8 @@ else:
         # --- ELEMENT 4: Most Games (Pure Clickable Text Link - Dark Blue) ---
     with kpi_c4:
         if st.query_params.get("click_games") == "true":
-            st.query_params.clear()
+            # st.query_params.clear()
+            st.query_params.pop("click_games", None)
             max_games_val = df['games'].max(skipna=True)
             if pd.notna(max_games_val):
                 st.session_state.search_filter = str(int(max_games_val)).strip()
