@@ -1198,7 +1198,8 @@ else:
     # --- ELEMENT 3: Top College (Pure Clickable Text Link - Dark Blue) ---
     with kpi_c3:
         if st.query_params.get("click_college") == "true":
-            st.query_params.clear()
+            # st.query_params.clear()
+            st.query_params.pop("click_college", None)
             valid_colleges = df['college'].dropna()
             valid_colleges = valid_colleges[valid_colleges.astype(str).str.strip().str.lower() != "nan"]
             valid_colleges = valid_colleges[valid_colleges.astype(str).str.strip() != ""]
