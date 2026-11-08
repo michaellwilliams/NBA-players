@@ -1277,7 +1277,8 @@ else:
             st.session_state.search_filter = ""
 
         if st.query_params.get("click_leader") == "true":
-            st.query_params.clear()
+            # st.query_params.clear()
+            st.query_params.pop("click_leader", None)
             valid_leaders = df.dropna(subset=['games', 'age', 'name'])
             if not valid_leaders.empty:
                 top_player_row = valid_leaders.sort_values(by=['games', 'age'], ascending=[False, False]).iloc[0]
