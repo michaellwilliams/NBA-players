@@ -13,7 +13,7 @@ import time
 # ADMINISTRATOR PASSWORD PROTECTION
 # ==========================================
 
-def require_admin_access():
+def require_admin_access(dialog_name):
 
     # Already authorized during this session
     if st.session_state.get("admin_authorized", False):
@@ -25,10 +25,10 @@ def require_admin_access():
     password = st.text_input(
         "Administrator Password",
         type="password",
-        key="edit_player_admin_password"
+        key=f"{dialog_name}_admin_password"
     )
 
-    if st.button("🔐 Unlock Admin Actions", key="unlock_admin_actions"):
+    if st.button("🔐 Unlock Admin Actions", key=f"{dialog_name}_unlock_admin_actions"):
 
         if password == st.secrets["ADMIN_PASSWORD"]:
             st.session_state["admin_authorized"] = True
@@ -287,7 +287,7 @@ def confirm_delete_dialog(player_ids):
 
 @st.dialog("➕ Add New Player", width="large")
 def add_player_dialog(columns):
-    if not require_admin_access(): # TODO: Make sure this works
+    if not require_admin_access("add_player"): # TODO: Make sure this works
         return
     st.write("Fill out the properties for the new player:")
     new_props = {}
@@ -400,7 +400,7 @@ def add_player_dialog(columns):
 
 @st.dialog("📝 Edit Selected Player", width="large")
 def edit_player_dialog(player_id, current_props):
-    if not require_admin_access(): # TODO: Make sure this works
+    if not require_admin_access("edit_player"): # TODO: Make sure this works
                 return
     # Track the active modal view state explicitly ("EDIT" or "CONFIRM_DELETE")
     view_key = f"modal_view_{player_id}"
