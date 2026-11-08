@@ -270,7 +270,7 @@ def get_player_network_subgraph(tx, player_id):
 # --- Dialog Windows (Modals) ---
 @st.dialog("⚠️ Confirm Deletion")
 def confirm_delete_dialog(player_ids):
-    if not require_admin_access(): # TODO: Make sure this works
+    if not require_admin_access("confirm_delete"): # TODO: Make sure this works
             return
     st.write(f"Are you sure you want to permanently delete **{len(player_ids)}** selected player(s)?")
     col1, col2 = st.columns(2)
