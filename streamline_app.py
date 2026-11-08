@@ -1413,12 +1413,32 @@ else:
     # Automatically select the player chosen from the graph
     graph_player = st.session_state.pop("graph_selected_player", None)
 
-    if graph_player:
-        if "select" in cleaned_sliced_df.columns:
-            cleaned_sliced_df["select"] = (
-                cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
-                == graph_player.strip().lower()
-            )
+    # if graph_player:
+    #     if "select" in cleaned_sliced_df.columns:
+    #         cleaned_sliced_df["select"] = (
+    #             cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
+    #             == graph_player.strip().lower()
+    #         )
+
+    # Automatically select ONLY ONE row for the player chosen from the graph
+    graph_player = st.session_state.pop("graph_selected_player", None)
+
+    if graph_player and "select" in cleaned_sliced_df.columns:
+
+        # Clear previous selections
+        cleaned_sliced_df["select"] = False
+
+        # Find all records belonging to the selected player
+        matching_rows = cleaned_sliced_df[
+            cleaned_sliced_df["name"].astype(str).str.strip().str.lower()
+            == graph_player.strip().lower()
+        ]
+
+        # Select only the first matching record
+        if not matching_rows.empty:
+            cleaned_sliced_df.loc[matching_rows.index[0], "select"] = True
+
+
 
     # Check row selection changes via data_editor
     edited_df = st.data_editor(
