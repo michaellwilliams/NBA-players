@@ -1594,15 +1594,15 @@ else:
                         help=f"Click to slice the data table grid down to {display_name}"
                     ):
 
-                        # st.session_state.search_filter = display_name.lower()
-                        # st.session_state.graph_selected_player = display_name
-                        # st.rerun()
-
                         st.session_state.search_filter = display_name.lower()
                         st.session_state.graph_selected_player = display_name
-                        st.session_state.graph_selection_version = (
-                            st.session_state.get("graph_selection_version", 0) + 1
-                        )
+                        st.rerun()
+
+                        # st.session_state.search_filter = display_name.lower()
+                        # st.session_state.graph_selected_player = display_name
+                        # st.session_state.graph_selection_version = (
+                        #     st.session_state.get("graph_selection_version", 0) + 1
+                        # )
 
                         st.rerun()
 
