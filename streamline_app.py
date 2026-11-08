@@ -25,7 +25,7 @@ def require_admin_access():
     password = st.text_input(
         "Administrator Password",
         type="password",
-        key="admin_password_input"
+        key="edit_player_admin_password"
     )
 
     if st.button("🔐 Unlock Admin Actions", key="unlock_admin_actions"):
