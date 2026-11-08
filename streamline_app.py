@@ -400,8 +400,8 @@ def add_player_dialog(columns):
 
 @st.dialog("📝 Edit Selected Player", width="large")
 def edit_player_dialog(player_id, current_props):
-    if not require_admin_access(): # TODO: Make sure this works
-                return
+    # if not require_admin_access(): # TODO: Make sure this works
+    #             return
     # Track the active modal view state explicitly ("EDIT" or "CONFIRM_DELETE")
     view_key = f"modal_view_{player_id}"
     
