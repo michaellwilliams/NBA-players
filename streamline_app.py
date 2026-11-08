@@ -1319,7 +1319,7 @@ else:
             calc_df['fg%'] = calc_df['fg%'].fillna(0)
             calc_df['net'] = calc_df['net'].fillna(0)
             calc_df['stat_score'] = (calc_df['reb']*1.2)+(calc_df['ast']*1.5)+(calc_df['net']*2.0)+(calc_df['games']*0.5)+(calc_df['fg%']*10.0)
-            valid_stats = calc_df[calc_df['name'].notna() & (calc_df['name'].str.strip() != "") & (calc_df['games'] >= 70)]
+            valid_stats = calc_df[calc_df['name'].notna() & (calc_df['name'].str.strip() != "") & (calc_df['games'] >= 80)]
             if not valid_stats.empty and calc_df['stat_score'].max() > 0:
                 top_stat_row = valid_stats.sort_values(by='stat_score', ascending=False).iloc[0]
                 st.session_state.search_filter = str(top_stat_row['name']).lower().strip()
