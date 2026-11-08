@@ -1571,7 +1571,15 @@ else:
             )
 
             # 2. Capture whichever node is actively selected or clicked on
+            # selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
+
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
+
+            if selected_node_raw is not None:
+                st.session_state["graph_clicked_node"] = selected_node_raw
+            # Restore the last clicked node when agraph returns None
+            if selected_node_raw is None:
+                selected_node_raw = st.session_state.get("graph_clicked_node")
 
             st.write("DEBUG - Graph selection:", repr(selected_node_raw))
             st.write("DEBUG - Last graph node:", repr(st.session_state.get("last_graph_node")))
@@ -1607,6 +1615,8 @@ else:
                         st.session_state.graph_selection_version = (
                             st.session_state.get("graph_selection_version", 0) + 1
                         )
+
+                        st.session_state["graph_clicked_node"] = None
 
                         st.rerun()
 
