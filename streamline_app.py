@@ -947,7 +947,7 @@ else:
     current_end = min(current_start + PAGE_SIZE, total_players)
     # FIX: Check if a user clicked a KPI link, text search, or graph node to filter the data
     if st.session_state.get("search_filter", "") != "":
-        st.session_state.start_idx = 0
+        st.session_state.start_idx = 0 # TODO: Make sure this works.
         current_filter = str(st.session_state.search_filter).strip().lower()
         
         # 1. Base exact matches for Name and College
