@@ -1594,9 +1594,6 @@ else:
                         st.session_state.search_filter = display_name.lower()
                         st.session_state.graph_selected_player = display_name
 
-                        # Reset the data editor so it accepts the new programmatic selection
-                        st.session_state.dynamic_key = f"editor_{display_name.lower().replace(' ', '_')}"
-
                         st.rerun()
 
             else:
