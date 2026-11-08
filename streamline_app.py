@@ -1613,19 +1613,27 @@ else:
     # --- Background Spreadsheet Auto-Save Engine ---
     # has_real_edits = False
     ####################################################################
-    if has_real_edits and st.session_state.get("admin_authorized", False):
-    ####################################################################
-    
-        # Extract the inline cell updates safely before the saving loop runs
-        editor_state_data = st.session_state.get(st.session_state.dynamic_key, {})
-        edited_rows_dict = editor_state_data.get("edited_rows", {})
+    # --- Background Spreadsheet Auto-Save Engine ---
+    has_real_edits = False
 
-        for row_key, field_changes in edited_rows_dict.items():
-            # Check for 'select' case-insensitively to properly catch checkbox unselect events
-            non_select_changes = {k: v for k, v in field_changes.items() if str(k).lower().strip() != "select"}
-            if non_select_changes:
-                has_real_edits = True
-                break
+    # Extract inline cell updates
+    editor_state_data = st.session_state.get(st.session_state.dynamic_key, {})
+    edited_rows_dict = editor_state_data.get("edited_rows", {})
+
+    for row_key, field_changes in edited_rows_dict.items():
+        non_select_changes = {
+            k: v for k, v in field_changes.items()
+            if str(k).lower().strip() != "select"
+        }
+
+        if non_select_changes:
+            has_real_edits = True
+            break
+
+# Only save if real edits exist AND admin is authorized
+if has_real_edits and st.session_state.get("admin_authorized", False):
+
+    # Keep your existing database save code here
             
     if has_real_edits:
         with driver.session() as session:
