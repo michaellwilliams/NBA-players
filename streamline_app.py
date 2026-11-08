@@ -1573,6 +1573,11 @@ else:
             # 2. Capture whichever node is actively selected or clicked on
             selected_node_raw = agraph(nodes=nodes, edges=edges, config=config)
 
+            if selected_node_raw is not None:  # Add these lines
+                st.session_state["last_graph_node"] = selected_node_raw # Add these lines
+
+            selected_node_raw = st.session_state.get("last_graph_node") # Add these lines
+
             if selected_node_raw is not None:
                 clicked_clean = str(selected_node_raw).strip()
 
