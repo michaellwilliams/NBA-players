@@ -960,9 +960,12 @@ else:
             combined_match = combined_match | team_match
         
         # 3. Numeric match if the user clicked the "Most Games" KPI metric
+        # if current_filter.isdigit():
+        #     games_match = (df['games'] == int(current_filter)).fillna(False)
+        #     combined_match = combined_match | games_match
+
         if current_filter.isdigit():
-            games_match = (df['games'] == int(current_filter)).fillna(False)
-            combined_match = combined_match | games_match
+            combined_match = (df['games'] == int(current_filter)).fillna(False)
             
         # 4. Text match if the user searched for a Season timeline
         elif "season" in df.columns and ("-" in current_filter or (len(current_filter) == 4 and current_filter.isdigit())):
@@ -1311,7 +1314,8 @@ else:
         # --- ELEMENT 6: Top Overall Performer (Pure Clickable Text Link - Dark Blue) ---
     with kpi_c6:
         if st.query_params.get("click_performer") == "true":
-            st.query_params.clear()
+            # st.query_params.clear()
+            st.query_params.pop("click_performer", None)
             for stat_col in ['games', 'reb', 'ast', 'fg%', 'net']:
                 if stat_col in df.columns:
                     df[stat_col] = pd.to_numeric(df[stat_col], errors='coerce')
