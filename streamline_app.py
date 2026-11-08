@@ -412,8 +412,6 @@ def edit_player_dialog(player_id, current_props):
 
     # --- VIEW A: Inline Deletion Confirmation Page ---
     if st.session_state[view_key] == "CONFIRM_DELETE":
-        if not require_admin_access(): # TODO2: Make sure this works.
-                    return
         st.subheader("⚠️ Confirm Permanent Deletion")
 
         st.write("Are you sure you want to permanently delete this player node?")
@@ -436,8 +434,6 @@ def edit_player_dialog(player_id, current_props):
                 st.rerun()
 
     elif st.session_state[view_key] == "EDIT":
-        if not require_admin_access(): # TODO1: Make sure this works # TODO: see if this works.
-                    return
         st.write("Modify the dynamic values below:")
         updated_props = {}
         
